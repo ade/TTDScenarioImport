@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script data-main="src/config.js" type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.15/require.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
 </head>
 
 <body>
 <h3>
     Lat/long with dot decimal
 </h3>
+<div id="townsform">
 <form>
     <p>
         North
@@ -72,136 +75,13 @@
 <hr />
 <div id="output"></div>
 
+</div>
+
 <script>
-    var endpoint = function(north, south, east, west, maxResults, api) {
-        if(api == 'full') {
-            return "http://www.geonames.org/servlet/geonames?srv=2&south=" + south + "&north="+north+"&west="+west+"&east="+east+"&P=1&lat="+north+"&lng="+west+"&zoom=12&orderby=population&maxRows=" + maxResults;
-        } else {
-            return "http://api.geonames.org/citiesJSON?north="+north+"&south="+south+"&east="+east+"&west="+west+"&lang=sv&username=ade_openttd_scenario&maxRows=" + maxResults;
-        }
-    };
-
-    var boundingBox = function() {
-        return {
-            north: $('#north').val(),
-            south: $('#south').val(),
-            east: $('#east').val(),
-            west: $('#west').val()
-        };
-    };
-
-    var startRequest = function() {
-        var box = boundingBox();
-        var api = $('#api').val();
-
-        $('#status').html('Downloading...');
-        $('#output').html('');
-
-        $.ajax({
-            url: endpoint(box.north, box.south, box.east, box.west, $('#maxresults').val(), api)
-        })
-        .done(function(r) {
-            var cities;
-            if(api == 'full') {
-                cities = parseFullApi(r);
-            } else {
-                cities = parseJsonCitiesApi(r);
-            }
-            mangle(cities);
-        })
-        .fail(function() {
-            $("#status").html('Sorry, something went wrong');
-            $('#output').html('');
-        });
-    };
-
-    var parseFullApi = function(r) {
-        var cities = [];
-        $(r).find('geonames marker').each( function(){
-            cities.push({
-                name: $(this).attr('name'),
-                population: parseInt($(this).attr('population'), 10),
-                lat: parseFloat($(this).attr('lat')),
-                lng: parseFloat($(this).attr('lng'))
-            });
-        });
-        return cities;
-    };
-
-    var parseJsonCitiesApi = function(r) {
-        return r.geonames;
-    };
-
-    var line = function(input) {
-        return input + "<br/>";
-    };
-
-    var mangle = function(cities) {
-        var output = '';
-        var box = boundingBox();
-        var populations = [];
-        var cityData = '';
-        var minPop = 999999;
-        var maxPop = 0;
-        var avgPop = 0;
-        var popSum = 0;
-
-        var pop_small = $('#pop_small').val();
-        var pop_medium = $('#pop_medium').val();
-        var pop_large = $('#pop_large').val();
-        var pop_large_city = $('#pop_large_city').val();
-
-        cities.forEach(function(city) {
-            var citySize;
-            var cityIsCity = '0';
-            if(city.population >= pop_large_city) {
-                citySize = 'L';
-                cityIsCity = '1';
-            } else if(city.population >= pop_large) {
-                citySize = 'L';
-            } else if(city.population >= pop_medium) {
-                citySize = 'M';
-            } else if(city.population >= pop_small) {
-                citySize = 'S';
-            }
-
-            cityData += line([
-                city.name.replace(/,/g, '.'),
-                citySize,
-                cityIsCity,
-                city.lat,
-                city.lng
-            ].join(','));
-
-            populations.push(city.population);
-            popSum += city.population;
-            if(city.population < minPop) {
-                minPop = city.population;
-            }
-            if(city.population > maxPop) {
-                maxPop = city.population;
-            }
-        });
-
-        avgPop = popSum / cities.length;
-
-        output += line('# Bounding box north: ' + box.north + ", east: " + box.east + ", south: " + box.south + ", west: " + box.west);
-        output += line(box.north + "," + box.east + "," + box.south + "," + box.west);
-        output += line('');
-        output += line('# ' + cities.length + " towns");
-        output += line('# Total population ' + popSum);
-        output += line('# Min population ' + minPop);
-        output += line('# Max population ' + maxPop);
-        output += line('# Avg population ' + avgPop);
-
-        output += cityData;
-
-        $('#output').html(output);
-        $('#status').html('Done!');
-    };
-
-    $('#request').click(function() {
-        startRequest();
+    require(['TownFetchView'], function(TownFetchView) {
+        var form = new TownFetchView(
+            {el: document.getElementById('townsform')}
+        );
     });
 </script>
 
