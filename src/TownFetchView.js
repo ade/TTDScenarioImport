@@ -47,6 +47,14 @@ define([
 
                     output += line('# Bounding box north: ' + box.get('north') + ", east: " + box.get('east') + ", south: " + box.get('south') + ", west: " + box.get('west'));
                     output += line(box.get('north') + "," + box.get('east') + "," + box.get('south') + "," + box.get('west'));
+                    output += "\n";
+
+                    if(format === 'McZapkie') {
+                        output += "#dummy entries for unused settings\n";
+                        output += "1,1,1\n";
+                        output += "1,1,1,1,1,1,1,1,1,1\n";
+                    }
+
                     output += townList.getImportTextFile(smallPopulationLimit, mediumPopulationLimit, largePopulationLimit, largeCityPopulationLimit, format, roadLayout);
 
                     that.$('.output').val(output);
