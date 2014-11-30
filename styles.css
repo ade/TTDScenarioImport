@@ -1,0 +1,39 @@
+nav div {
+    display: inline-block;
+    padding: 16px;
+    font-family: Sans-serif;
+    font-weight: bold;
+    font-size: 18pt;
+    background: lightblue;
+    border-width: 1px 1px 0 1px;
+    border-color: darkblue;
+    border-style: solid;
+    cursor: pointer;
+}
+nav div:hover {
+    background: lightcyan;
+}
+
+div.contentpane {
+    background: lightblue;
+    padding: 16px;
+    box-shadow: 1px 1px 15px black;
+}
+
+body {
+    background: slategray;
+}
+
+.hidden {
+    display: none;
+}
+
+canvas {
+    border: 1px solid darkcyan;
+}
+
+.output {
+    box-sizing: border-box;
+    width: 100%;
+    height: 400px;
+}

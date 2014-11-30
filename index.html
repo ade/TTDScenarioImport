@@ -4,34 +4,46 @@
     <script data-main="src/config.js" type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.15/require.min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+    <link rel="stylesheet" href="styles.css"/>
 </head>
 
 <body>
-<h3>
-    Lat/long with dot decimal
-</h3>
-<div id="townsform">
+
+<nav id="menu">
+    <div id="townstab">Towns</div>
+    <div id="watertab">Water</div>
+</nav>
+<div id="townsform" class="contentpane">
+    <h2>Town list downloader</h2>
+    <div>
+        Use this to download a list of towns in the specified coordinates. You can export the list of towns to a format that can
+        be read by the import towns or import land patch created by Zydeco and McZapkie, respectively.
+    </div>
 <form>
+    <h3>
+        Lat/long with dot decimal
+    </h3>
     <p>
         North
-        <input type="text" id="north" value="56.6261931"/>
+        <input type="text" id="north" value="56.666529"/>
     </p>
     <p>
         South
-        <input type="text" id="south" value="55.2771703"/>
+        <input type="text" id="south" value="55.211515"/>
     </p>
     <p>
         East
-        <input type="text" id="east" value="14.7407328" />
+        <input type="text" id="east" value="14.795666" />
     </p>
     <p>
         West
-        <input type="text" id="west" value="12.3704821"/>
+        <input type="text" id="west" value="12.082043"/>
     </p>
     <p>
         Max amount of cities (full api allows up to 2000)
-        <input type="text" id="maxresults" value="2000"/>
+        <input type="text" id="maxresults" value="10"/>
     </p>
+    <!--
     <p>
         Subdivides<br>
         If you are hitting the maximum results, try using this to make multiple requests for the area.
@@ -42,11 +54,34 @@
             <option value="8">8</option>
         </select>
     </p>
+    -->
     <p>
         API
         <select id="api">
             <option value="full">Full</option>
             <option value="trimmed">Trimmed</option>
+        </select>
+    </p>
+    <h3>
+        Settings
+    </h3>
+    <p>
+        Text file format
+        <select id="format">
+            <option value="McZapkie" selected>McZapkie</option>
+            <option value="Zydeco">Zydeco</option>
+        </select>
+    </p>
+    <p id="townLayoutContainer">
+        Town layout
+        <select id="townLayout">
+            <option value="0">Original</option>
+            <option value="1" selected>Better roads</option>
+            <option value="2">2x2 Grid</option>
+            <option value="3">3x3 Grid</option>
+            <option value="4">Random (when importing)</option>
+            <option value="random">Random (same every import)</option>
+            <option value="5">Use game settings</option>
         </select>
     </p>
     <h3>
@@ -58,30 +93,68 @@
     </p>
     <p>
         Medium
-        <input type="text" id="pop_medium" value="10000"/>
+        <input type="text" id="pop_medium" value="500"/>
     </p>
     <p>
         Large
-        <input type="text" id="pop_large" value="30000"/>
+        <input type="text" id="pop_large" value="2000"/>
     </p>
     <p>
         Large + city
         <input type="text" id="pop_large_city" value="50000"/>
     </p>
+
     <button type="button" id="request">Request</button>
 </form>
 
 <div id="status"></div>
 <hr />
-<div id="output"></div>
+<h4>Output (save as a text file to use with patched OpenTTD)</h4>
+<textarea class="output" spellcheck='false'></textarea>
 
 </div>
 
+<div id="waterpage" class="hidden contentpane">
+    <h2>Water image map to text file</h2>
+    <div>
+        You can use this to convert a water map image to the text format that works with McZapkie's patch. Any pixel that contains a BLUE value over 127 (50%) will be set as a water tile.
+        That means you can draw your rivers and lakes as layer in your heightmap.
+
+        <ul>
+            <li>This tool is supposed to be used with McZapkie's patch (<a href="http://www.tt-forums.net/viewtopic.php?f=29&t=70846">see thread</a>)</li>
+            <li>Use a black background and draw blue water and save as an image that is the same size as your heightmap.</li>
+            <li>You should select the same map size in OpenTTD as your water image dimensions, or it won't work.</li>
+            <li>This only works with Counter-Clockwise rotation setting when importing the heightmap.</li>
+            <li>Pixels with Alpha less than 50% will be skipped</li>
+        </ul>
+    </div>
+    <label>Select your water map image:</label><br/>
+    <input type="file" id="imageLoader" name="imageLoader"/>
+    <div>
+    <canvas id="previewCanvas" width="512" height="512"></canvas>
+    </div>
+    <canvas id="rawCanvas" class="hidden"></canvas>
+
+    <hr />
+    <div class="status"></div>
+    <hr />
+    <h4>Output (save as a text file to use with patched OpenTTD)</h4>
+    <textarea class="output" spellcheck='false'></textarea>
+</div>
+
 <script>
-    require(['TownFetchView'], function(TownFetchView) {
+    require(['TownFetchView', 'NavView', 'WaterPageView'], function(TownFetchView, NavView, WaterPageView) {
         var form = new TownFetchView(
             {el: document.getElementById('townsform')}
         );
+
+        var nav = new NavView({
+            el: $("#menu")
+        });
+
+        new WaterPageView({
+            el: $("#waterpage")
+        })
     });
 </script>
 

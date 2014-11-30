@@ -1,7 +1,14 @@
 define(['Backbone', 'Q'], function(Backbone, Q) {
     var line = function(input) {
-        return input + "<br/>";
+        return input + "\n";
     };
+
+    /**
+     * Returns a random integer between min (inclusive) and max (inclusive)
+     */
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
     var parseFullApi = function parseFullApi(r) {
         var cities = [];
@@ -60,42 +67,55 @@ define(['Backbone', 'Q'], function(Backbone, Q) {
             return deferred.promise;
         },
 
-        getTownPatchFormat: function() {
+        getImportTextFile: function getImportTextFile(smallPopulationLimit, mediumPopulationLimit, largePopulationLimit, largeCityPopulationLimit, format, roadLayout) {
             var cities = this.get('results');
             var output = '';
             var populations = [];
             var cityData = '';
             var minPop = 999999;
             var maxPop = 0;
-            var avgPop = 0;
             var popSum = 0;
-
-            var pop_small = $('#pop_small').val();
-            var pop_medium = $('#pop_medium').val();
-            var pop_large = $('#pop_large').val();
-            var pop_large_city = $('#pop_large_city').val();
+            var avgPop;
+            var roadLayoutValue;
 
             cities.forEach(function(city) {
                 var citySize;
                 var cityIsCity = '0';
-                if(city.population >= pop_large_city) {
+                if(city.population >= largeCityPopulationLimit) {
                     citySize = 'L';
                     cityIsCity = '1';
-                } else if(city.population >= pop_large) {
+                } else if(city.population >= largePopulationLimit) {
                     citySize = 'L';
-                } else if(city.population >= pop_medium) {
+                } else if(city.population >= mediumPopulationLimit) {
                     citySize = 'M';
-                } else if(city.population >= pop_small) {
+                } else if(city.population >= smallPopulationLimit) {
                     citySize = 'S';
                 }
 
-                cityData += line([
-                    city.name.replace(/,/g, '.'),
-                    citySize,
-                    cityIsCity,
-                    city.lat,
-                    city.lng
-                ].join(','));
+                if(format === "Zydeco") {
+                    cityData += line([
+                        city.name.replace(/,/g, '.'),
+                        citySize,
+                        cityIsCity,
+                        city.lat,
+                        city.lng
+                    ].join(','));
+                } else {
+                    if(roadLayout === 'random') {
+                        roadLayoutValue = getRandomInt(0, 4);
+                    } else {
+                        roadLayoutValue = roadLayout;
+                    }
+                    //<object name>,<object type>,<object size/importance>,<latitude>,<longitude>,<object layout>
+                    cityData += line([
+                        city.name.replace(/,/g, '.'),
+                        citySize,
+                        cityIsCity,
+                        city.lat,
+                        city.lng,
+                        roadLayoutValue
+                    ].join(','));
+                }
 
                 populations.push(city.population);
                 popSum += city.population;
