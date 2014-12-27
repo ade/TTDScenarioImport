@@ -80,6 +80,7 @@ define(['Backbone', 'Q'], function(Backbone, Q) {
 
             cities.forEach(function(city) {
                 var citySize;
+                var includeTown = true;
                 var cityIsCity = '0';
                 if(city.population >= largeCityPopulationLimit) {
                     citySize = 'L';
@@ -90,40 +91,46 @@ define(['Backbone', 'Q'], function(Backbone, Q) {
                     citySize = 'M';
                 } else if(city.population >= smallPopulationLimit) {
                     citySize = 'S';
-                }
-
-                if(format === "Zydeco") {
-                    cityData += line([
-                        city.name.replace(/,/g, '.'),
-                        citySize,
-                        cityIsCity,
-                        city.lat,
-                        city.lng
-                    ].join(','));
+                } else if(format === 'McZapkie') {
+                    citySize = 'V';
                 } else {
-                    if(roadLayout === 'random') {
-                        roadLayoutValue = getRandomInt(0, 4);
-                    } else {
-                        roadLayoutValue = roadLayout;
-                    }
-                    //<object name>,<object type>,<object size/importance>,<latitude>,<longitude>,<object layout>
-                    cityData += line([
-                        city.name.replace(/,/g, '.'),
-                        citySize,
-                        cityIsCity,
-                        city.lat,
-                        city.lng,
-                        roadLayoutValue
-                    ].join(','));
+                    includeTown = false;
                 }
 
-                populations.push(city.population);
-                popSum += city.population;
-                if(city.population < minPop) {
-                    minPop = city.population;
-                }
-                if(city.population > maxPop) {
-                    maxPop = city.population;
+                if(includeTown) {
+                    if (format === "Zydeco") {
+                        cityData += line([
+                            city.name.replace(/,/g, '.'),
+                            citySize,
+                            cityIsCity,
+                            city.lat,
+                            city.lng
+                        ].join(','));
+                    } else {
+                        if (roadLayout === 'random') {
+                            roadLayoutValue = getRandomInt(0, 4);
+                        } else {
+                            roadLayoutValue = roadLayout;
+                        }
+                        //<object name>,<object type>,<object size/importance>,<latitude>,<longitude>,<object layout>
+                        cityData += line([
+                            city.name.replace(/,/g, '.'),
+                            citySize,
+                            cityIsCity,
+                            city.lat,
+                            city.lng,
+                            roadLayoutValue
+                        ].join(','));
+                    }
+
+                    populations.push(city.population);
+                    popSum += city.population;
+                    if (city.population < minPop) {
+                        minPop = city.population;
+                    }
+                    if (city.population > maxPop) {
+                        maxPop = city.population;
+                    }
                 }
             });
 

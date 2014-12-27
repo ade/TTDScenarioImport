@@ -16,6 +16,7 @@ define(['Backbone'], function(Backbone) {
             this.rawCanvas = document.getElementById('rawCanvas');
             this.previewContext = this.previewCanvas.getContext('2d');
             this.rawContext = this.rawCanvas.getContext('2d');
+            this.placeWaterOnSloped = document.getElementById("placeWaterOnSloped");
         },
 
 
@@ -88,7 +89,12 @@ define(['Backbone'], function(Backbone) {
             output += "\n";
 
             for(var i = 0; i < tiles.length; i++) {
-                output += ",W,0,-" + tiles[i][1] + ",-" + tiles[i][0] + ",0\n";
+                if(this.placeWaterOnSloped.checked) {
+                    output += ",W,0";
+                } else {
+                    output += ",W,1";
+                }
+                output += ",-" + tiles[i][1] + ",-" + tiles[i][0] + ",0\n";
             }
             return output;
         }

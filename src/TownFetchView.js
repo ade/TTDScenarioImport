@@ -50,8 +50,9 @@ define([
                     output += "\n";
 
                     if(format === 'McZapkie') {
+                        output += "#small cities probabilities (change to non-zero to include villages smaller than the small size limit)\n";
+                        output += "0,0,1\n";
                         output += "#dummy entries for unused settings\n";
-                        output += "1,1,1\n";
                         output += "1,1,1,1,1,1,1,1,1,1\n";
                     }
 
